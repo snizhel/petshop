@@ -1,0 +1,69 @@
+﻿@using PetStore8.Models
+@model PetStore8.Models.RevenueViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm("Index", "Revenue", FormMethod.Post, new { @class = "form-inline" }))
+{
+    @Html.AntiForgeryToken()
+
+    <h4>RevenueViewModel</h4>
+    <hr />
+    <div class="form-group">
+        @Html.LabelFor(model => model.FromDate, htmlAttributes: new { @class = "control-label" })
+        @Html.EditorFor(model => model.FromDate, new { htmlAttributes = new { @class = "form-control", type = "date", @Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("yyyy-MM-dd") } })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.ToDate, htmlAttributes: new { @class = "control-label" })
+        @Html.EditorFor(model => model.ToDate, new { htmlAttributes = new { @class = "form-control", type = "date", @Value = DateTime.Today.ToString("yyyy-MM-dd") } })
+    </div>
+    <input type="submit" value="View" class="btn btn-default" />
+}
+
+<hr />
+@if (ViewBag.OrderList != null)
+{
+    <table class="table">
+        <tr>
+            <th>No.</th>
+            <th>Id</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Employee</th>
+            <th style="text-align:right">Amount</th>
+            <th>Operator</th>
+        </tr>
+        @{
+            int i = 0;
+            double total = 0;
+        }
+        @foreach (Order order in ViewBag.OrderList)
+        {
+            total += order.Amount;
+        <tr>
+            <td>@(++i)</td>
+            <td>@(order.Id.ToString("000000"))</td>
+            <td>@(order.Date.ToString("MM-dd-yyyy"))</td>
+            <td>@(order.Customer.AspNetUser.FirstName + " " + order.Customer.AspNetUser.LastName)</td>
+            <td>@(order.Employee.AspNetUser.FirstName + " " + order.Employee.AspNetUser.LastName)</td>
+            <td align="right">@(order.Amount.ToString("C2"))</td>
+            <td>
+                <a href="@Url.Action("Details",new { id = order.Id })">
+                    <span class="glyphicon glyphicon-refresh" style="color:green"></span> Details
+                </a>
+            </td>
+        </tr>            
+        }
+        <tr>
+            <th colspan="5" style="text-align:right">Total:</th>
+            <th style="text-align:right">@(total.ToString("C2"))</th>
+        </tr>
+    </table>
+}
+        <div>            
+            @Html.ActionLink("Back to List", "Index")
+        </div>

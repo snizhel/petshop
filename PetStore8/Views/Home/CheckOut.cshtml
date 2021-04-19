@@ -1,0 +1,91 @@
+﻿@using PetStore8.Models
+@model PetStore8.Models.Order
+
+@{
+    ViewBag.Title = "Order";
+}
+
+<h2>Order: @(Model.Id.ToString("000000"))</h2>
+<br />
+<b>Date: </b>@(Model.Date.ToString("MM-dd-yyyy"))
+<br />
+<b>Customer: </b>@(Model.Customer.AspNetUser.FirstName + " " + Model.Customer.AspNetUser.LastName)
+<br />
+<b>Employee: </b>@(Model.Employee.AspNetUser.FirstName + " " + Model.Employee.AspNetUser.LastName)
+<br />
+
+<table class="table">
+    <tr>
+        <th class="text-right">
+            No.
+        </th>
+        <th>
+            Picture
+        </th>
+        <th>
+            Description
+        </th>
+        <th>
+            Category
+        </th>
+        <th class="text-right">
+            Quantity
+        </th>
+        <th class="text-right">
+            Old Price
+        </th>
+        <th class="text-right">
+            Discount
+        </th>
+        <th class="text-right">
+            New Price
+        </th>
+        <th class="text-right">
+            Amount
+        </th>
+    </tr>
+    @{
+        int i = 0;
+        double totalAmount = 0;
+    }
+    @foreach (var item in Model.OrderDetails)
+    {
+        double newPrice = item.Price * (1 - item.Discount);
+        double amount = item.Quantity * newPrice;
+        totalAmount += amount;
+        <tr>
+            <td class="text-right">
+                @(++i)
+            </td>
+            <td>
+                <img src="~/products/@(item.ProductId).jpg" height="80" />
+            </td>
+            <td>
+                @(item.Product.Description)
+            </td>
+            <td>
+                @(item.Product.Category.Name)
+            </td>
+            <td class="text-right">
+                @(item.Quantity)
+            </td>
+            <td class="text-right">
+                @(item.Price.ToString("C2"))
+            </td>
+            <td class="text-right">
+                @(item.Discount.ToString("P0"))
+            </td>
+            <td class="text-right">
+                @(newPrice.ToString("C2"))
+            </td>
+            <td class="text-right">
+                @(amount.ToString("C2"))
+            </td>
+        </tr>
+    }
+    <tr>
+        <th colspan="8" class="text-right">Total:</th>
+        <th class="text-right">@(totalAmount.ToString("C2"))</th>
+        <th></th>
+    </tr>
+</table>

@@ -1,0 +1,188 @@
+﻿@model PagedList.IPagedList<PetStore8.Models.Product>
+@using PagedList.Mvc
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<!-- Trigger the modal with a link -->
+<div class="pull-right text-center" style="margin-top:20px;margin-left:20px;">
+    <a href="/" title="Reset searching and sorting" style="text-decoration:none;">
+        <span class="glyphicon glyphicon-refresh"></span><br /><span style="font-size:0.8em;">Reset</span>
+    </a>
+</div>
+<div class="pull-right text-center" style="margin-top:20px;margin-left:20px;">
+    <a href="#" data-toggle="modal" data-target="#modalSearching" title="Searching Pets" style="text-decoration:none;">
+        <span class="glyphicon glyphicon-search"></span><br /><span style="font-size:0.8em;">Search</span>
+    </a>
+</div>
+<div class="pull-right text-center" style="margin-top:20px;margin-left:20px;">
+    <a href="#" data-toggle="modal" data-target="#modalSorting" title="Sorting Pets" style="text-decoration:none;">
+        <span class="glyphicon glyphicon-sort"></span><br /><span style="font-size:0.8em;">Sort</span>
+    </a>
+</div>
+
+<h2>Pet Store</h2>
+<hr />
+
+
+<div class="row">
+
+    @foreach (var product in Model)
+    {
+        <div class="col-md-4" style="padding:10px;">
+            @*@<img src="@string.Format("/products/{0}.jpg", product.Id)" style="width:100%;" />*@
+            <img src="/products/@(product.Id).jpg" style="width:100%;" />
+            <b>Category: </b>@product.Category.Name<br />
+            <b>Description: </b>@product.Description<br />
+            <strike><b>Old Price: </b>@Html.DisplayFor(modelItem => product.Price)</strike><br />
+            <b>New Price: </b><span style="color:red;font-size:x-large;">@((product.Price * (1 - product.Discount)).ToString("C2"))</span><br />
+            <b>Discount: </b>@Html.DisplayFor(modelItem => product.Discount)<br />
+            <button type="button" class="btn btn-primary add-to-cart" title="Add to Cart" data-id="@product.Id">
+                <span class="glyphicon glyphicon-shopping-cart"></span> Add to Cart
+            </button>
+        </div>
+    }
+</div>
+<div class="row">
+    <div class="col-md-12 text-right">
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        @Html.PagedListPager(Model, page => Url.Action("/Index",
+            new
+                 {
+                     page,
+                  category = ViewBag.category.SelectedValue,
+                     description = ViewBag.description,
+                     fromPrice = ViewBag.fromPrice,
+                     toPrice = ViewBag.toPrice,
+                  orderby1 = ViewBag.orderby1.SelectedValue,
+                     orderby2 = ViewBag.orderby2.SelectedValue,
+                     asc1 = ViewBag.asc1,
+                     asc2 = ViewBag.asc2
+                 }),
+            new PagedListRenderOptions { DisplayLinkToIndividualPages = true, MaximumPageNumbersToDisplay = 5 })
+    </div>
+</div>
+
+
+<!-- Begin Modal Searching -->
+<div class="modal fade" id="modalSearching" role="dialog">
+    <div class="modal-dialog">
+        <form>
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Searching Pets</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        @*<input type="text" class="form-control" id="category" name="category" placeholder="Enter a category" value="@ViewBag.category">*@
+                        @Html.DropDownList("category", null, "Select a category", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter description" value="@ViewBag.description">
+                    </div>
+                    <div class="form-group">
+                        <label for="fromPrice">From price:</label>
+                        <input type="text" class="form-control" id="fromPrice" name="fromPrice" placeholder="Enter min price" value="@ViewBag.fromPrice">
+                    </div>
+                    <div class="form-group">
+                        <label for="toPrice">To price:</label>
+                        <input type="text" class="form-control" id="toPrice" name="toPrice" placeholder="Enter max price" value="@ViewBag.toPrice">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!--Preserve sorting states-->
+                    <input type="hidden" name="orderby1" value="@ViewBag.orderby1.SelectedValue" />
+                    <input type="hidden" name="orderby2" value="@ViewBag.orderby2.SelectedValue" />
+                    <input type="hidden" name="asc1" value="@ViewBag.asc1" />
+                    <input type="hidden" name="asc2" value="@ViewBag.asc2" />
+
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- End Modal Searching -->
+<!-- Begin Modal Sorting -->
+<div class="modal fade" id="modalSorting" role="dialog">
+    <div class="modal-dialog">
+        <form>
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Sorting Pets</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="orderby1">Order by 1:</label>
+                        @Html.DropDownList("orderby1", null, htmlAttributes: new { @class = "form-control" })
+                        <div style="margin-top:10px;">
+                            <label class="radio-inline"><input type="radio" value="asc" name="asc1" checked><span class="glyphicon glyphicon-sort-by-attributes"></span> Ascending</label>
+                            <label class="radio-inline"><input type="radio" value="desc" name="asc1"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span>Descending</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderby2">Order by 2:</label>
+                        @Html.DropDownList("orderby2", null, "None", htmlAttributes: new { @class = "form-control" })
+                        <div style="margin-top:10px;">
+                            <label class="radio-inline"><input type="radio" value="asc" name="asc2" checked><span class="glyphicon glyphicon-sort-by-attributes"></span> Ascending</label>
+                            <label class="radio-inline"><input type="radio" value="desc" name="asc2"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span>Descending</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!--Preserve searching states-->
+                    <input type="hidden" name="category" value="@ViewBag.category.SelectedValue" />
+                    <input type="hidden" name="description" value="@ViewBag.description" />
+                    <input type="hidden" name="fromPrice" value="@ViewBag.fromPrice" />
+                    <input type="hidden" name="toPrice" value="@ViewBag.toPrice" />
+
+                    <button type="submit" class="btn btn-primary">Sort</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- End Modal Sorting -->
+@section Scripts{
+    <script language="javascript">        
+        $(".add-to-cart").click(function () {
+            var item_id = $(this).data("id");
+            $.ajax({
+                url: '/Cart/AddToCart',//Controller/action: xu ly yeu cau
+                method: 'GET',
+                async: true,//xu ly yc theo kieu bat dong bo
+                cache: false,
+                data: {//Du lieu gui len server
+                    id: item_id
+                },
+                beforeSend: function () {
+                    alert_show("alert-info", "Info!", "Adding the item to your cart. Please wait...");
+                }
+            }).done(function (result) {//Lay kq sau khi xu ly yc
+                if (result.status == "OK") {
+                    $("#total-amount").html(result.total_amount);
+                    alert_show("alert-success", "Success!", "Adding the item to your cart successfully.");
+                }
+                else if (result.status == "ER") {
+                    //$("#fb").html(result.data);
+                    alert_show("alert-danger", "Error!", result.data);
+                }
+
+            }).fail(function (xhr, status) {//Xu ly loi
+                //$("#fb").html(status);
+                alert_show("alert-danger", "Error!", status);
+            }).always(function () {
+                //$("#fb").html("");
+            })
+        })
+    </script>
+}
